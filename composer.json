@@ -1,0 +1,25 @@
+{
+  "name": "phpdevcommunity/relational-query",
+  "description": "A lightweight PHP query builder with built-in relational query support. Easily build complex SQL queries and fetch results as arrays.",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "F. Michel",
+      "homepage": "https://www.phpdevcommunity.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "PhpDevCommunity\\Sql\\": "src",
+      "Test\\PhpDevCommunity\\Sql\\": "tests"
+    }
+  },
+  "require": {
+    "php": ">=7.4",
+    "ext-pdo": "*"
+  },
+  "require-dev": {
+    "phpdevcommunity/unitester": "^0.1.0@alpha"
+  }
+}
