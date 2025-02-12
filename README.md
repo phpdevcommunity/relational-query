@@ -7,7 +7,7 @@ A lightweight PHP query builder for easy database interactions.
 You can install this library via [Composer](https://getcomposer.org/). Make sure your project meets the minimum PHP version requirement of 7.4 or higher.
 
 ```bash
-composer phpdevcommunity/relational-query
+composer require phpdevcommunity/relational-query
 ```
 
 ## Usage

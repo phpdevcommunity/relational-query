@@ -89,7 +89,7 @@ final class JoinQL
     }
 
     public function leftJoin(
-        string $fromTable,            // The source table (the table to join from)
+        string $fromTable,            // The source table (the table to join from or alias)
         string $toTable,              // The target table (the table to join to)
         string $toTableAlias,         // The alias for the joined table (used in the query)
         array  $joinConditions,       // The conditions for the JOIN clause (e.g., ['posts.user_id', '=', 'users.id'])
@@ -120,7 +120,7 @@ final class JoinQL
     }
 
     public function innerJoin(
-        string $fromTable,            // The source table (the table to join from)
+        string $fromTable,            // The source table (the table to join from or alias)
         string $toTable,              // The target table (the table to join to)
         string $toTableAlias,         // The alias for the joined table (used in the query)
         array  $joinConditions,       // The conditions for the JOIN clause (e.g., ['posts.user_id', '=', 'users.id'])
@@ -244,12 +244,13 @@ final class JoinQL
                 if ($join['alias'] !== $alias) {
                     continue;
                 }
-                /** @var array<Table> $parent */
-                $parent = array_values(array_filter($tables, function ($table) use ($join) {
-                    return $table->getTable() === $join['from'];
+                /** @var array<Table> $parents */
+                $parents = array_values(array_filter($tables, function ($table) use ($join) {
+                    return $table->getTable() === $join['from'] || $join['from'] === $table->getAlias();
                 }));
-                if (count($parent) > 0) {
-                    $parent[0]->addChild($table);
+
+                foreach (array_unique($parents) as $parent) {
+                    $parent->addChild($table);
                 }
             }
         }
