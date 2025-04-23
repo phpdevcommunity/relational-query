@@ -155,10 +155,6 @@ final class JoinQL
         $this->lastRow = null;
         $count = 0;
         while (($rows = $this->fetchIterator($db)) !== null) {
-            if ($this->limit !== null && $count >= $this->limit) {
-                break;
-            }
-            $count++;
             if ($rows instanceof \Traversable) {
                 $rows = iterator_to_array($rows);
             }
@@ -168,7 +164,11 @@ final class JoinQL
             }
 
             foreach ($rows as $row) {
+                if ($this->limit !== null && $count >= $this->limit) {
+                    break 2;
+                }
                 yield $row;
+                $count++;
             }
         }
 
