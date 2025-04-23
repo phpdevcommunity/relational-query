@@ -149,24 +149,38 @@ final class JoinQL
         return $this;
     }
 
-    public function getResultIterator(array $params = []): iterable
+    public function  getResultIterator(array $params = []): iterable
     {
         $db = $this->executeQuery($this->selectQuery, $params);
         $this->lastRow = null;
         $count = 0;
-        while (($row = $this->fetchIterator($db)) !== null) {
+        while (($rows = $this->fetchIterator($db)) !== null) {
             if ($this->limit !== null && $count >= $this->limit) {
                 break;
             }
             $count++;
-            yield $row;
+            if ($rows instanceof \Traversable) {
+                $rows = iterator_to_array($rows);
+            }
+
+            if (empty($rows)) {
+                break;
+            }
+
+            foreach ($rows as $row) {
+                yield $row;
+            }
         }
+
         $db->closeCursor();
     }
 
     public function getOneOrNullResult(array $params = []): ?array
     {
-        foreach ($this->getResultIterator($params, 1) as $row) {
+        foreach ($this->getResultIterator($params) as $row) {
+            if ($row instanceof \Traversable) {
+                $row = iterator_to_array($row)[0] ?? null;
+            }
             return $row;
         }
 
@@ -191,7 +205,7 @@ final class JoinQL
         return $this->selectQuery->__toString();
     }
 
-    private function fetchIterator(PDOStatement $db): ?array
+    private function fetchIterator(PDOStatement $db): iterable
     {
         $data = null;
         if ($this->lastRow !== null) {
@@ -215,8 +229,12 @@ final class JoinQL
         if ($data === null) {
             return null;
         }
-        return $this->buildGraph($data)[0] ?? null;
 
+        $items = $this->buildGraph($data) ?? [];
+        foreach ($items as $item) {
+            yield $item;
+        }
+        return null;
     }
 
     private function executeQuery(string $query, array $params = []): PDOStatement
@@ -253,6 +271,10 @@ final class JoinQL
                     $parent->addChild($table);
                 }
             }
+        }
+
+        if ($data === []) {
+            return [];
         }
 
         return (new GraphBuilder($data, $tables, $this->primaryKey))->buildGraph();

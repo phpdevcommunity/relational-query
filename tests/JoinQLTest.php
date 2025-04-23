@@ -35,6 +35,7 @@ class JoinQLTest extends TestCase
         $this->testOrderBy();
         $this->testLeftJoin();
         $this->testInnerJoin();
+        $this->testWithLimit();
     }
 
     public function testSelect(): void
@@ -130,8 +131,19 @@ class JoinQLTest extends TestCase
 
     }
 
+    private function testWithLimit()
+    {
+        $joinQl = new JoinQL($this->connection);
+        $joinQl
+            ->select('post', 'p', ['id', 'title', 'user_id', 'content', 'created_at'])
+            ->setMaxResults(1000000);
+        $data = $joinQl->getResult();
+        $this->assertEquals( 10 , count($data));
+    }
+
     private function testRowOneToMany($row)
     {
+
         $this->assertTrue(is_array($row));
         $this->assertTrue(array_key_exists('id', $row));
         $this->assertTrue(array_key_exists('firstname', $row));
